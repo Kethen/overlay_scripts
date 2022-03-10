@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ABS_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_ABS\), code [0-9]+ \((ABS_[0-9A-Z]+)\), value (-?[0-9]+)"
 BTN_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_KEY\), code [0-9]+ \((BTN_[0-9A-Z]+)\), value (0||1)"
 
@@ -11,7 +13,7 @@ abs_update () {
 	then
 		trigger_l=$value
 	fi
-	
+
 	if [ "$key" == "ABS_RZ" ]
 	then
 		trigger_r=$value
@@ -47,13 +49,12 @@ btn_update () {
 draw_state () {
 	// print controller state
 	clear
-	echo trigger L: $trigger_l
-	echo trigger R: $trigger_r
-	echo a: $a
-	echo x: $x
-	echo b: $b
-	echo analog: $analog
-	
+	echo brakek: $trigger_l
+	echo gas: $trigger_r
+	echo down shift: $a
+	echo up shift: $x
+	echo hand brake: $b
+	echo steering: $analog
 }
 
 evtest "$1" | while read -r LINE
