@@ -1,4 +1,6 @@
 #!/bin/bash
+FILTER='^(.+) (.+) PRIVMSG #(.+) :(.+)$'
+
 clear
 while true
 do
@@ -9,7 +11,8 @@ echo "
 	CAP REQ :twitch.tv/tags
 " | netcat irc.chat.twitch.tv 6667 | while read -r LINE
 do
-	if [ -n "$(echo $LINE | grep -E '(.+) (.+) PRIVMSG #(.+) :(.+)')" ]
+	filtered=$(echo $LINE | grep -E "$FILTER")
+	if [ -n "$filtered" ]
 	then
 		tag=$(echo "$LINE" | awk '{print $1}')
 		for pair in $(echo "$tag" | tr ';' '\n')
@@ -23,10 +26,16 @@ do
 			fi
 			if [ "$name" == "color" ]
 			then
-				color=$(echo $value | sed 's/#//')
+				color=$(echo $value | sed -E 's/#([0-9A-F]{6})/\1/')
 			fi
 		done
-		message=$(echo "$LINE" | sed -E 's/(.+) (.+) PRIVMSG #(.+) :(.+)/\4/')
+		if [ -z "$color" ]
+		then
+			#echo "warning: bad color $color"
+			#echo "$LINE"
+			color="FFFF00"
+		fi
+		message=$(echo "$LINE" | sed -E "s/$FILTER/\4/")
 		printf "\x1b[38;2;%d;%d;%dm%s\x1b[0m %s\n" "0x${color:0:2}" "0x${color:2:2}" "0x${color:4:2}" "$display_name" "$message"
 	fi
 done
