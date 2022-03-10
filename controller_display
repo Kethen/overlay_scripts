@@ -1,0 +1,73 @@
+ABS_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_ABS\), code [0-9]+ \((ABS_[0-9A-Z]+)\), value (-?[0-9]+)"
+BTN_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_KEY\), code [0-9]+ \((BTN_[0-9A-Z]+)\), value (0||1)"
+
+
+abs_update () {
+	key=$(echo "$1" | sed -E "s/$ABS_FILTER/\1/")
+	value=$(echo "$1" | sed -E "s/$ABS_FILTER/\2/")
+
+	// log value of interest
+	if [ "$key" == "ABS_Z" ]
+	then
+		trigger_l=$value
+	fi
+	
+	if [ "$key" == "ABS_RZ" ]
+	then
+		trigger_r=$value
+	fi
+
+	if [ "$key" == "ABS_X" ]
+	then
+		analog=$value
+	fi
+}
+
+btn_update () {
+	key=$(echo "$1" | sed -E "s/$BTN_FILTER/\1/")
+	value=$(echo "$1" | sed -E "s/$BTN_FILTER/\2/")
+
+	// log value of interest
+	if [ "$key" == "BTN_SOUTH" ]
+	then
+		a=$value
+	fi
+
+	if [ "$key" == "BTN_EAST" ]
+	then
+		b=$value
+	fi
+
+	if [ "$key" == "BTN_NORTH" ]
+	then
+		x=$value
+	fi
+}
+
+draw_state () {
+	// print controller state
+	clear
+	echo trigger L: $trigger_l
+	echo trigger R: $trigger_r
+	echo a: $a
+	echo x: $x
+	echo b: $b
+	echo analog: $analog
+	
+}
+
+evtest "$1" | while read -r LINE
+do
+	ABS_UPDATE=$(echo $LINE | grep -E "$ABS_FILTER")
+	BTN_UPDATE=$(echo $LINE | grep -E "$BTN_FILTER")
+	if [ -n "$ABS_UPDATE" ]
+	then
+		abs_update "$LINE"
+	fi
+
+	if [ -n "$BTN_UPDATE" ]
+	then
+		btn_update "$LINE"
+	fi
+	draw_state
+done
