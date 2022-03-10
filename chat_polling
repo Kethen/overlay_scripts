@@ -26,7 +26,7 @@ do
 				color=$(echo $value | sed 's/#//')
 			fi
 		done
-		message=$(echo "$LINE" | awk '{print $5}')
+		message=$(echo "$LINE" | sed -E 's/(.+) (.+) PRIVMSG #(.+) :(.+)/\4/')
 		printf "\x1b[38;2;%d;%d;%dm%s\x1b[0m %s\n" "0x${color:0:2}" "0x${color:2:2}" "0x${color:4:2}" "$display_name" "$message"
 	fi
 done
