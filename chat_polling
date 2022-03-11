@@ -1,5 +1,5 @@
 #!/bin/bash
-FILTER='^(.+) (.+) PRIVMSG #(.+) :(.+)$'
+FILTER='^(.+) (.+) PRIVMSG #(\S+) (.+)'
 
 echo $'\033]30;'chat$'\007'
 
@@ -38,6 +38,7 @@ do
 			color="FFFF00"
 		fi
 		message=$(echo "$LINE" | sed -E "s/$FILTER/\4/")
+		message="${message:1:9999}"
 		printf "\x1b[38;2;%d;%d;%dm%s\x1b[0m %s\n" "0x${color:0:2}" "0x${color:2:2}" "0x${color:4:2}" "$display_name" "$message"
 	fi
 done
