@@ -118,6 +118,31 @@ tl=0
 tr=0
 m=0
 
+export_state () {
+echo "
+trigger_l=$trigger_l
+trigger_r=$trigger_r
+analog_l_x=$analog_l_x
+analog_l_y=$analog_l_y
+analog_r_x=$analog_r_x
+analog_r_y=$analog_r_y
+dpad_x=$dpad_x
+dpad_y=$dpad_y
+a=$a
+b=$b
+x=$x
+y=$y
+st=$st
+sl=$sl
+tl=$tl
+tr=$tr
+m=$m
+" > "$1"
+}
+
+export_file="/tmp/$(uuidgen)_controller_display"
+touch "$export_file"
+
 evtest "$1" | while read -r LINE
 do
 	ABS_UPDATE=$(echo $LINE | grep -E "$ABS_FILTER")
@@ -134,8 +159,50 @@ do
 
 	if [ -n "$ABS_UPDATE" ] || [ -n "$BTN_UPDATE" ]
 	then
+		export_state "$export_file"
+	fi
+done &
+POLLER_PID=$!
+echo $POLLER_PID > /tmp/poller_pid
+
+clear
+file_missing=0
+echo "begin" | while true
+do
+	if [ -e "$export_file" ]
+	then
+		file_missing=0
+		source "$export_file"
+		sleep 0.03
 		state=$(draw_state)
 		clear
 		echo "$state"
+	else
+		file_missing=$((file_missing + 1))
+		if [ $file_missing -gt 200 ]
+		then
+			break
+		fi
+	fi
+done &
+PRINTER_PID=$!
+echo $PRINTER_PID > /tmp/printer_pid
+
+trap interrupt INT
+function interrupt () {
+	kill $POLLER_PID
+	kill $PRINTER_PID
+	rm "$export_file"
+	echo
+	exit 0
+}
+
+while read -r LINE
+do
+	if [ "$LINE" == "q" ]
+	then
+		break
 	fi
 done
+
+interrupt
