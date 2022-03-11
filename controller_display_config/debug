@@ -1,0 +1,20 @@
+
+draw_state () {
+	echo "trigger_l: $trigger_l"
+	echo "trigger_r: $trigger_r"
+	echo "analog_l_x: $analog_l_x"
+	echo "analog_l_y: $analog_l_y"
+	echo "analog_r_x: $analog_r_x"
+	echo "analog_r_y: $analog_r_y"
+	echo "dpad_x: $dpad_x"
+	echo "dpad_y: $dpad_y"
+	echo "a: $a"
+	echo "b: $b"
+	echo "x: $x"
+	echo "y: $y"
+	echo "st: $st"
+	echo "sl: $sl"
+	echo "tl: $tl"
+	echo "tr: $tr"
+	echo "m: $m"
+}
