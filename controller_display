@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo $'\033]30;'controls$'\007'
+
 ABS_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_ABS\), code [0-9]+ \((ABS_[0-9A-Z]+)\), value (-?[0-9]+)"
 BTN_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_KEY\), code [0-9]+ \((BTN_[0-9A-Z]+)\), value (0||1)"
 

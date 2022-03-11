@@ -1,0 +1,2 @@
+#!/bin/bash
+konsole --profile transparency --hide-menubar --hide-tabbar --geometry 400x400 --qwindowtitle chat -e bash chat_polling "$1" &

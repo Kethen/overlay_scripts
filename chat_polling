@@ -1,6 +1,8 @@
 #!/bin/bash
 FILTER='^(.+) (.+) PRIVMSG #(.+) :(.+)$'
 
+echo $'\033]30;'chat$'\007'
+
 clear
 while true
 do
