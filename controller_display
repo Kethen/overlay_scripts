@@ -142,30 +142,37 @@ m=$m
 " > "$1"
 }
 
-export_file="/tmp/$(uuidgen)_controller_display"
-touch "$export_file"
+POLLER_PID=0
+PRINTER_PID=0
 
-evtest "$1" | while read -r LINE
-do
-	ABS_UPDATE=$(echo $LINE | grep -E "$ABS_FILTER")
-	BTN_UPDATE=$(echo $LINE | grep -E "$BTN_FILTER")
-	if [ -n "$ABS_UPDATE" ]
-	then
-		abs_update "$LINE"
-	fi
+if [ -c "$1" ]
+then
+	export_file="/tmp/$(uuidgen)_controller_display"
+	touch "$export_file"
 
-	if [ -n "$BTN_UPDATE" ]
-	then
-		btn_update "$LINE"
-	fi
+	evtest "$1" | while read -r LINE
+	do
+		ABS_UPDATE=$(echo $LINE | grep -E "$ABS_FILTER")
+		BTN_UPDATE=$(echo $LINE | grep -E "$BTN_FILTER")
+		if [ -n "$ABS_UPDATE" ]
+		then
+			abs_update "$LINE"
+		fi
 
-	if [ -n "$ABS_UPDATE" ] || [ -n "$BTN_UPDATE" ]
-	then
-		export_state "$export_file"
-	fi
-done &
-POLLER_PID=$!
-echo $POLLER_PID > /tmp/poller_pid
+		if [ -n "$BTN_UPDATE" ]
+		then
+			btn_update "$LINE"
+		fi
+
+		if [ -n "$ABS_UPDATE" ] || [ -n "$BTN_UPDATE" ]
+		then
+			export_state "$export_file"
+		fi
+	done &
+	POLLER_PID=$!
+else
+	export_file="$1"
+fi
 
 clear
 file_missing=0
@@ -183,6 +190,7 @@ do
 		file_missing=$((file_missing + 1))
 		if [ $file_missing -gt 200 ]
 		then
+			echo
 			break
 		fi
 	fi
@@ -192,9 +200,16 @@ echo $PRINTER_PID > /tmp/printer_pid
 
 trap interrupt INT
 function interrupt () {
-	kill $POLLER_PID
-	kill $PRINTER_PID
-	rm "$export_file"
+	if [ "$POLLER_PID" != 0 ]
+	then
+		kill $POLLER_PID
+		rm "$export_file"
+	fi
+	if [ "$PRINTER_PID" != 0 ]
+	then
+		kill $PRINTER_PID
+	fi
+	sleep 0.5
 	echo
 	exit 0
 }
