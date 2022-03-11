@@ -1,0 +1,2 @@
+#!/bin/bash
+konsole --profile transparency --hide-menubar --hide-tabbar --geometry 260x360 -e bash controller_display "$1" controller_display_config/character &

@@ -6,7 +6,8 @@ render_steering () {
 	if [ "${value:0:1}" == "-" ]
 	then
 		value="${value:1:99}"
-		left=$((value * scale / 32768))
+		value=$((value - 1))
+		left=$((value * scale / 32767))
 	else
 		right=$((value * scale / 32767))
 	fi

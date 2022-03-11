@@ -1,0 +1,178 @@
+print_base () {
+cat << "EOF"
+      /"-_  __  ,, _ __-"\
+     /  _-''  '"  " " '-  \
+     \/     ,  ,  ,     \ /
+    / /   / /  \/ \/"\ \ \
+    |   / /""\    /""\  \ |
+   -"|  | | / |  | \ || | "-
+   \ |  |  """____""" | | /
+    |\ /      '--'    | | | 
+    | | "-_  \____/ _-"|  |
+    \  -__|         |__|  /
+     \"_  ""-__ __-"",_"\/
+      / "-____-"-__-"    \
+     /      |      |      \
+    |       "      "       |
+    | _-"\_-""""""""-_/"-_ |
+    -"    \-""""""""-/    "-
+    |___-"            "-___|
+EOF
+}
+
+print_face_normal () {
+cat << "EOF"
+      /"-_  __  ,, _ __-"\
+     /  _-''  '"  " " '-  \
+     \/     ,  ,  ,     \ /
+    / /   / /  \/ \/"\ \ \
+    |   / /""\    /""\  \ |
+   -"|  | | / |  | \ || | "-
+   \ |  |  """____""" | | /
+    |\ /      '--'    | | | 
+    | | "-_  \____/ _-"|  |
+    \  -__|         |__|  /
+     \"_  ""-__ __-"",_"\/
+      / "-____-"-__-"    \
+EOF
+}
+
+print_face_gas () {
+cat << "EOF"
+      /"-_  __  ,, _ __-"\
+     /  _-''  '"  " " '-  \  vroom
+     \/     ,  ,  ,     \ /   vroom
+    / /   / /  \/ \/"\ \ \
+    |   / /""\    /""\  \ |
+   -"|  | | \ |  | / || | "-
+   \ |  |  """____""" | | /
+    |\ /      '--'    | | | 
+    | | "-_   ----  _-"|  |
+    \  -__|   \__/  |__|  /
+     \"_  ""-__ __-"",_"\/
+      / "-____-"-__-"    \
+EOF
+}
+
+print_face_brake () {
+cat << "EOF"
+      /"-_  __  ,, _ __-"\
+     /  _-''  '"  " " '-  \  shit
+     \/     ,  ,  ,     \ /   shit
+    / /   / /  \/ \/"\ \ \     shit
+    |   / /""\    /""\  \ |
+   -"|  | | / |  | \ || | "-
+   \ |  |  """____""" | | /
+    |\ /      '--'    | | | 
+    | | "-_  -""""- _-"|  |
+    \  -__|         |__|  /
+     \"_  ""-__ __-"",_"\/
+      / "-____-"-__-"    \
+EOF
+}
+
+print_steering_neutral () {
+cat << "EOF"
+     /      |      |      \
+    |       "      "       |
+    | _-"\_-""""""""-_/"-_ |
+    -"    \-""""""""-/    "-
+    |___-"            "-___|
+EOF
+}
+
+print_steering_right () {
+cat << "EOF"
+     /      |      |      \
+    |    __."      "       |
+    |  -"   "|""""""--_    |
+    |_-\___-""""""""--_"""\
+    /  /              \    \
+                       \-_-"
+EOF
+}
+
+print_steering_left () {
+cat << "EOF"
+     /      |      |      \
+    |       "      ".__    |     
+    |    _--""""""|"   "-  |
+     /"""_--""""""""-___\-_|
+    /    /              \  \
+    "-_-/ 
+EOF
+}
+
+print_steering_right_extra () {
+cat << "EOF"
+     /      |      |      \
+    |     __.__    "       |
+    | _-"|     |"""""""-_  |
+    |/  -"-___-"""""""-_-"-\
+    /  /               |    \
+                        \-_-"
+EOF
+}
+
+print_steering_left_extra () {
+cat << "EOF"
+     /      |      |      \
+    |       "   __.__      |
+    | _-"""""""|     |"-_  |
+   /-"-_-"""""""-___-"-  \ |
+  /    |               \  \
+  "-_-/
+EOF
+}
+
+draw_state () {
+	if [ $trigger_l -eq $trigger_r ]
+	then
+		print_face_normal
+	else
+		if [ $trigger_l -gt 200 ] || [ $trigger_r -gt 200 ]
+		then
+			if [ $trigger_l -gt $trigger_r ]
+			then
+				print_face_brake
+			else
+				print_face_gas
+			fi
+		else
+			print_face_normal
+		fi
+	fi
+	scale=3
+	if [ "${analog_l_x:0:1}" == "-" ]
+	then
+		value=${analog_l_x:1:999}
+		value=$((value - 1))
+		value=$((value * scale / 32767))
+		if [ $value -eq 0 ]
+		then
+			print_steering_neutral
+		fi
+		if [ $value -eq 1 ]
+		then
+			print_steering_right
+		fi
+		if [ $value -ge 2 ]
+		then
+			print_steering_right_extra
+		fi
+	else
+		value=$((analog_l_x * scale / 32767))
+		if [ $value -eq 0 ]
+		then
+			print_steering_neutral
+		fi
+		if [ $value -eq 1 ]
+		then
+			print_steering_left
+		fi
+		if [ $value -ge 2 ]
+		then
+			print_steering_left_extra
+		fi
+	fi
+}
