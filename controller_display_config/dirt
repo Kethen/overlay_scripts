@@ -42,6 +42,7 @@ render_steering () {
 
 render_throttle () {
 	value=$1
+	color=$2
 	scale=43
 	max=255
 	value=$((value * scale / max))
@@ -51,7 +52,7 @@ render_throttle () {
 	do
 		if [ $value -gt 0 ]
 		then
-			echo -n ">"
+			printf "\x1b[38;2;%d;%d;%dm>\x1b[0m" "0x${color:0:2}" "0x${color:2:2}" "0x${color:4:2}"
 			value=$((value - 1))
 		else
 			echo -n "-"
@@ -78,10 +79,10 @@ render_button () {
 }
 
 draw_state () {
-	echo brake: "$(render_throttle $trigger_l)"
-	echo gas: "$(render_throttle $trigger_r)"
-	echo down shift: "$(render_button $a)"
-	echo up shift: "$(render_button $x)"
-	echo hand brake: "$(render_button $b)"
-	echo steering: "$(render_steering $analog_l_x)"
+	echo "Gas       " "$(render_throttle $trigger_r 8888FF)"
+	echo "Brake     " "$(render_throttle $trigger_l FF5555)"
+	echo "Down shift" "$(render_button $a)"
+	echo "Up shift  " "$(render_button $x)"
+	echo "Hand brake" "$(render_button $b)"
+	echo "Steering  " "$(render_steering $analog_l_x)"
 }

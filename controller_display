@@ -100,6 +100,24 @@ btn_update () {
 	fi
 }
 
+trigger_l=0
+trigger_r=0
+analog_l_x=0
+analog_l_y=0
+analog_r_x=0
+analog_r_y=0
+dpad_x=0
+dpad_y=0
+a=0
+b=0
+x=0
+y=0
+st=0
+sl=0
+tl=0
+tr=0
+m=0
+
 evtest "$1" | while read -r LINE
 do
 	ABS_UPDATE=$(echo $LINE | grep -E "$ABS_FILTER")
