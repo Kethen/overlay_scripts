@@ -14,6 +14,8 @@ draw_state () {
 	echo "y: $y"
 	echo "st: $st"
 	echo "sl: $sl"
+	echo "thumbl: $thumbl"
+	echo "thumbr: $thumbr"
 	echo "tl: $tl"
 	echo "tr: $tr"
 	echo "m: $m"

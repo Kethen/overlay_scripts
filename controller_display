@@ -2,14 +2,68 @@
 
 echo $'\033]30;'controls$'\007'
 
-ABS_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_ABS\), code [0-9]+ \((ABS_[0-9A-Z]+)\), value (-?[0-9]+)"
-BTN_FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_KEY\), code [0-9]+ \((BTN_[0-9A-Z]+)\), value (0||1)"
+FILTER="Event: time [0-9]+\.[0-9]+, type [0-9]+ \(EV_(ABS|KEY)\), code [0-9]+ \((ABS_[0-9A-Z]+|BTN_[0-9A-Z]+)\), value (-?[0-9]+)"
 
 source "$2"
 
-abs_update () {
-	key=$(echo "$1" | sed -E "s/$ABS_FILTER/\1/")
-	value=$(echo "$1" | sed -E "s/$ABS_FILTER/\2/")
+pad_update () {
+	key=$(echo "$1" | sed -E "s/$FILTER/\2/")
+	value=$(echo "$1" | sed -E "s/$FILTER/\3/")
+
+	if [ "$key" == "BTN_SOUTH" ]
+	then
+		a=$value
+	fi
+
+	if [ "$key" == "BTN_EAST" ]
+	then
+		b=$value
+	fi
+
+	if [ "$key" == "BTN_NORTH" ]
+	then
+		x=$value
+	fi
+
+	if [ "$key" == "BTN_WEST" ]
+	then
+		y=$value
+	fi
+
+	if [ "$key" == "BTN_START" ]
+	then
+		st=$value
+	fi
+
+	if [ "$key" == "BTN_SELECT" ]
+	then
+		sl=$value
+	fi
+
+	if [ "$key" == "BTN_THUMBL" ]
+	then
+		thumbl=$value
+	fi
+
+	if [ "$key" == "BTN_THUMBR" ]
+	then
+		thumbr=$value
+	fi
+
+	if [ "$key" == "BTN_TL" ]
+	then
+		tl=$value
+	fi
+
+	if [ "$key" == "BTN_TR" ]
+	then
+		tr=$value
+	fi
+
+	if [ "$key" == "BTN_MODE" ]
+	then
+		m=$value
+	fi
 
 	if [ "$key" == "ABS_Z" ]
 	then
@@ -52,56 +106,6 @@ abs_update () {
 	fi
 }
 
-btn_update () {
-	key=$(echo "$1" | sed -E "s/$BTN_FILTER/\1/")
-	value=$(echo "$1" | sed -E "s/$BTN_FILTER/\2/")
-
-	if [ "$key" == "BTN_SOUTH" ]
-	then
-		a=$value
-	fi
-
-	if [ "$key" == "BTN_EAST" ]
-	then
-		b=$value
-	fi
-
-	if [ "$key" == "BTN_NORTH" ]
-	then
-		x=$value
-	fi
-
-	if [ "$key" == "BTN_WEST" ]
-	then
-		y=$value
-	fi
-
-	if [ "$key" == "BTN_START" ]
-	then
-		st=$value
-	fi
-
-	if [ "$key" == "BTN_SELECT" ]
-	then
-		sl=$value
-	fi
-
-	if [ "$key" == "BTN_THUMBL" ]
-	then
-		tl=$value
-	fi
-
-	if [ "$key" == "BTN_THUMBR" ]
-	then
-		tr=$value
-	fi
-
-	if [ "$key" == "BTN_MODE" ]
-	then
-		m=$value
-	fi
-}
-
 trigger_l=0
 trigger_r=0
 analog_l_x=0
@@ -116,6 +120,8 @@ x=0
 y=0
 st=0
 sl=0
+thumbl=0
+thumbr=0
 tl=0
 tr=0
 m=0
@@ -136,6 +142,8 @@ x=$x
 y=$y
 st=$st
 sl=$sl
+thumbl=$thumbl
+thumbr=$thumbr
 tl=$tl
 tr=$tr
 m=$m
@@ -152,19 +160,13 @@ then
 
 	evtest "$1" | while read -r LINE
 	do
-		ABS_UPDATE=$(echo $LINE | grep -E "$ABS_FILTER")
-		BTN_UPDATE=$(echo $LINE | grep -E "$BTN_FILTER")
-		if [ -n "$ABS_UPDATE" ]
+		UPDATE=$(echo $LINE | grep -E "$FILTER")
+		if [ -n "$UPDATE" ]
 		then
-			abs_update "$LINE"
+			pad_update "$LINE"
 		fi
 
-		if [ -n "$BTN_UPDATE" ]
-		then
-			btn_update "$LINE"
-		fi
-
-		if [ -n "$ABS_UPDATE" ] || [ -n "$BTN_UPDATE" ]
+		if [ -n "$UPDATE" ]
 		then
 			export_state "$export_file"
 		fi
